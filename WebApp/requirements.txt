@@ -1,5 +1,7 @@
 moviepy>=1.0 
 imageio>=2.5 
-dlib>=19.20 
+dlib-bin 
+streamlit>=1.20 
+tensorflow>=2.7
 black>=22.3.0 
 streamlit-option-menu 
