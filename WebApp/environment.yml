@@ -4,6 +4,11 @@ channels:
   - defaults 
 dependencies:
   - dlib
-  - pip   
+  - pip 
+  - numpy 
+  - scipy 
+  - opencv 
+  - face_recognition 
+  - streamlit   
   - pip:
     - -r requirements.txt 
