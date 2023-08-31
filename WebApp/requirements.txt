@@ -23,7 +23,6 @@ cycler==0.11.0
 cython>=0.29.21
 debugpy==1.6.7
 decorator==4.4.2
-dlib==19.24.2
 dm-tree==0.1.8
 etils==1.4.1
 executing==1.2.0
