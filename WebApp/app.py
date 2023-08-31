@@ -1,18 +1,18 @@
 import streamlit as st 
-import time 
-import asyncio 
+#import time 
+#import asyncio 
 from PIL import Image 
-import cv2 
+#import cv2 
 from moviepy import editor as moviepy 
 import imageio 
 
-import pandas as pd 
-import numpy as np 
+#import pandas as pd 
+#import numpy as np 
 
 import os 
 
-from matplotlib import pyplot as plt 
-import plotly.express as px 
+#from matplotlib import pyplot as plt 
+#import plotly.express as px 
 
 from utils import load_video, num_to_char 
 
@@ -170,7 +170,7 @@ elif navbar == "LipNet Model":
             <h2 class = "center-text" >Prediction From the Model</h2>
         """,unsafe_allow_html=True)
         with st.spinner("Predicting..."): 
-            prediction, status = watson_speech_prediction(frames.tolist())  
+            prediction, status =  watson_speech_prediction(frames.tolist())  
         if status:
             st.success("Speech SuccessFully Predicted :sparkles: ") 
             st.markdown(f"""

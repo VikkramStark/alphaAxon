@@ -1,4 +1,4 @@
-import mediapipe as mp 
+# import mediapipe as mp 
 import numpy as np 
 import cv2 
 import os 
@@ -27,36 +27,36 @@ video_path = "test_two.mp4"
 #         print(keys)  
 
 
-def landmark_facemesh(video_path:str):  
-    mpFaceMesh = mp.solutions.face_mesh 
-    face_mesh = mpFaceMesh.FaceMesh(max_num_faces = 1) 
-    mpDraw = mp.solutions.drawing_utils 
-    drawSpec = mpDraw.DrawingSpec(thickness = 1, circle_radius = 2) 
-    cap = cv2.VideoCapture(video_path) 
-    frames = [] 
-    # for _ in range(int(cap.get(7))):
-    while True: 
-        status, frame = cap.read() 
-        if not status:
-            break
-        imgRGB = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)  
+# def landmark_facemesh(video_path:str):  
+#     mpFaceMesh = mp.solutions.face_mesh 
+#     face_mesh = mpFaceMesh.FaceMesh(max_num_faces = 1) 
+#     mpDraw = mp.solutions.drawing_utils 
+#     drawSpec = mpDraw.DrawingSpec(thickness = 1, circle_radius = 2) 
+#     cap = cv2.VideoCapture(video_path) 
+#     frames = [] 
+#     # for _ in range(int(cap.get(7))):
+#     while True: 
+#         status, frame = cap.read() 
+#         if not status:
+#             break
+#         imgRGB = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)  
 
-        results = face_mesh.process(imgRGB)  
+#         results = face_mesh.process(imgRGB)  
 
-        if(results.multi_face_landmarks): 
-            landmark = results.multi_face_landmarks[0] 
-            mpDraw.draw_landmarks(imgRGB, landmark, mpFaceMesh.FACEMESH_LIPS, drawSpec)    
+#         if(results.multi_face_landmarks): 
+#             landmark = results.multi_face_landmarks[0] 
+#             mpDraw.draw_landmarks(imgRGB, landmark, mpFaceMesh.FACEMESH_LIPS, drawSpec)    
             
-            frames.append(imgRGB)  
-        #cv2.imshow("Frame", frame)  
+#             frames.append(imgRGB)  
+#         #cv2.imshow("Frame", frame)  
 
-        # if(cv2.waitKey(1) == ord('q')):
-            # break   
+#         # if(cv2.waitKey(1) == ord('q')):
+#             # break   
 
-    # cap.release() 
-    # cv2.destroyAllWindows()
+#     # cap.release() 
+#     # cv2.destroyAllWindows()
 
-    return frames 
+#     return frames 
 
 
 def load_video(video_path, display = False, output_path = False):   
@@ -151,15 +151,15 @@ def load_video(video_path, display = False, output_path = False):
     return processed[:75] #return only 75 Frames 
 
   
-def frames_to_video(name, frames, gray = False):  
-    fps = 25 
-    out = cv2.VideoWriter(name, cv2.VideoWriter_fourcc(*'mp4v'), fps, (len(frames), len(frames[0])), not gray) 
-    for i in range(75):
-        try:
-            out.write(frames[i]) 
-        except:
-            break 
-    out.release()  
+# def frames_to_video(name, frames, gray = False):  
+#     fps = 25 
+#     out = cv2.VideoWriter(name, cv2.VideoWriter_fourcc(*'mp4v'), fps, (len(frames), len(frames[0])), not gray) 
+#     for i in range(75):
+#         try:
+#             out.write(frames[i]) 
+#         except:
+#             break 
+#     out.release()  
 
 
 
