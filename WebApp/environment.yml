@@ -1,0 +1,10 @@
+name: dlib
+channels:
+  - conda-forge
+  - defaults 
+dependencies:
+  - streamlit >= 0.73
+  - dlib
+  - tensorflow>=2.7
+  - imageio 
+  - moviepy 
