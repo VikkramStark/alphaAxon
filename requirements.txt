@@ -1,0 +1,6 @@
+moviepy<=1.03 
+imageio<=2.5 
+tensorflow>=2.7 
+dlib==19.24 
+imageio==2.26 
+open-cv==4.8 
