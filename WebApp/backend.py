@@ -3,7 +3,8 @@ import requests
 #from ibm_watson_machine_learning import APIClient 
 
 from utils import load_video, num_to_char  
-import tensorflow as tf   
+import tensorflow as tf 
+from modelutils import LipNet   
 
 wml_credentials = {
     "url":"https://us-south.ml.cloud.ibm.com", 
@@ -16,6 +17,12 @@ DEPLOYMENT_ID = "5015465f-770f-459a-9a06-c071fd198ffd"           # OLD_DEPLOYMEN
 # NOTE: you must manually set API_KEY below using information retrieved from your IBM Cloud account.
 
 API_KEY = "06OUEcO3iWSP-hDf_yAKIR3lE6MS6RTSmLFlmbtjNDd3"    # NEW_API_KEY       # "50tndXfHZWBvTOYzo-IG1MOK6LQAsSNObk0XgbdkBvSW"   # OLD_API_KEY
+
+
+def decode_prediction(encoded): 
+    decoded = tf.keras.backend.ctc_decode(encoded, input_length = [75], greedy = True)[0][0].numpy() 
+    text = bytes.decode(tf.strings.reduce_join(num_to_char(decoded)).numpy()) 
+    return text 
 
 
 def watson_speech_prediction(frames):   
@@ -73,3 +80,16 @@ def watson_speech_prediction(frames):
             final_output = "Unexpected Error Occured !" 
 
     return final_output, status
+
+
+
+
+def speech_prediction(frames): 
+    try:
+        model = LipNet() 
+        prediction = model.predict(tf.expand_dims(frames, axis = 0))  
+        return decode_prediction(prediction), True   
+    except Exception as e:
+        print(e) 
+        return False, False 
+    

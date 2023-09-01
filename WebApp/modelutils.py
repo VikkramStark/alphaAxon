@@ -1,9 +1,8 @@
-import tensorflow as tf 
 from tensorflow.keras.models import Sequential 
 from tensorflow.keras.layers import Conv3D, LSTM, Dense, Dropout, Bidirectional, MaxPool3D, Activation, Reshape, SpatialDropout3D, BatchNormalization, TimeDistributed, Flatten
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import ModelCheckpoint, LearningRateScheduler
-from tensorflow.keras.backend import ctc_loss 
+import tensorflow as tf 
  
 
 # MODEL 
@@ -38,5 +37,7 @@ def LipNet():
     model.add(Dropout(.5))
     
     model.add(Dense(char_to_num.vocabulary_size()+1, kernel_initializer='he_normal', activation='softmax')) 
+
+    model.load_weights("../models/best_model/checkpoint")  
     
     return model 

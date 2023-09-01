@@ -19,7 +19,7 @@ from utils import load_video, num_to_char
  
 from streamlit_option_menu import option_menu 
 
-from backend import watson_speech_prediction 
+from backend import watson_speech_prediction, speech_prediction  
 
 
 
@@ -168,7 +168,7 @@ elif navbar == "LipNet Model":
             <h2 class = "center-text" >Prediction From the Model</h2>
         """,unsafe_allow_html=True)
         with st.spinner("Predicting..."): 
-            prediction, status =  watson_speech_prediction(frames.tolist())  
+            prediction, status =  speech_prediction(frames)  #watson_speech_prediction(frames.tolist())  
         if status:
             st.success("Speech SuccessFully Predicted :sparkles: ") 
             st.markdown(f"""
