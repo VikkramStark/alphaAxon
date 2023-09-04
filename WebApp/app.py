@@ -1,7 +1,6 @@
 import streamlit as st 
 #import time 
 #import asyncio 
-from PIL import Image 
 #import cv2 
 from moviepy import editor as moviepy 
 import imageio 
@@ -21,6 +20,8 @@ from streamlit_option_menu import option_menu
 
 from backend import watson_speech_prediction, speech_prediction  
 
+from gcs import get_logo, list_dataset, get_video   
+
 
 
 st.set_page_config(layout = "wide", initial_sidebar_state="expanded", page_title = "LipNet - alphaAxon", page_icon="./assets/favicon.png")  
@@ -32,7 +33,10 @@ st.session_state["video_path"] = None
 #
 
 with st.sidebar:
-    st.image("assets/alphaAxon_final.png", use_column_width = True)  
+    # st.image("assets/alphaAxon_final.png", use_column_width = True)  
+    logo = imageio.imread(get_logo())  
+    st.image(logo, use_column_width = True)  
+
 
 CDNs = """         
             <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -41,6 +45,10 @@ CDNs = """
             <link rel="preconnect" href="https://fonts.googleapis.com">
             <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
             <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&family=Poppins:wght@100;300;400;600&display=swap" rel="stylesheet">
+
+            <link rel="preconnect" href="https://fonts.googleapis.com">
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+            <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;700&family=Orbitron:wght@400;500;600;700&family=Poppins:wght@100;300;400;600&display=swap" rel="stylesheet">
         """
 
 st.markdown(CDNs, unsafe_allow_html=True) 
@@ -61,7 +69,7 @@ if navbar == "Home":
 
         <div class="container">
             <div class="left">
-                <h4 class = "space" >Transforming Gestures into Crystal Clear Communication </h4>  
+                <h4 class = "space" ><b> Transforming Gestures into Crystal Clear Communication </b></h4>
                 <h3 class = "space">Uncover the hidden melodies through our captivating Lip reading platform</h3> 
             </div>
             <div class="middle">
@@ -76,8 +84,9 @@ if navbar == "Home":
 
         <div class = "container container-two"> 
                 <div class = 'neo'> 
-                    <h3>Immense yourself in the muted elegance of Lip-reading</h2>
+                    <h3 class = "open-sans">Immense yourself in the muted elegance of Lip-reading</h2> 
                     <h4>Open up new possibilities of communication with intelligence.</h4>
+                    <h4 class = "open-sans" style = "line-height:1.5;" >"Uncover hidden melodies of non-verbal communication through our captivating silent lip reading platform"</h4> 
                 </div>
                 <div>
                     <button class = "hero-button">Explore The Speech Model Now! </button>
@@ -115,17 +124,21 @@ elif navbar == "LipNet Model":
     st.title(" ") 
 
     gap1,col1, gap2,col2, gap3 = st.columns([1,10,1,10,1])  
-    dataset = os.listdir("./Dataset")
-    
-    
 
+    #Listing Dataset with Google cloud storage 
+
+    dataset = list_dataset() 
+    
     video_path = col1.selectbox(label = "Select Video from existing Dataset: ", options = ["Select a Video",*dataset]) 
 
     if(video_path != "Select a Video" and (video_path.endswith(".mp4") or video_path.endswith(".mpg"))): 
-        clip = moviepy.VideoFileClip("./Dataset/"+video_path)    
-        clip.write_videofile("./temp/test.mp4")  
-        col1.video("./temp/test.mp4") 
-        st.session_state["video_path"] = "./temp/test.mp4" 
+        #clip = moviepy.VideoFileClip("./Dataset/"+video_path)    
+        #clip.write_videofile("./temp/test.mp4")  
+        video = get_video(video_path)  
+        col1.video(video) 
+        print(type(video)) 
+        print(len(video)) 
+        st.session_state["video_path"] = video_path  
 
     if(st.session_state.video_path is None):
         col2.markdown("""
@@ -138,7 +151,7 @@ elif navbar == "LipNet Model":
     elif st.session_state.video_path:
 
 
-        frames = load_video(st.session_state.video_path).numpy()  
+        frames = load_video(video).numpy()  
         #st.write(type(frames)) 
         #st.write(frames)     
         col2.markdown("""
@@ -188,7 +201,7 @@ elif navbar == "About":
             <h3>Dr. M.G.R Educational and Research Institute</h3> 
             <h5>Maduravoyal, Chennai, TamilNadu, India</h5> 
             <h3 style = "margin-top:1.5rem; ">Have done this Project under IBM Hack Challenge 2023</h3>
-            <h4>Silent Speech Recognition with CNN, GRU and Computer Vision.</h4><br> 
+            <h4>Silent Speech Recognition with CNN, LSTM and Computer Vision.</h4><br> 
             <div class = "about_info"><span class = "">This Model is built with <b>Tensorflow</b> and trained by the <b>GRID dataset</b>,<br>which consists of videos and annotations of people uttering few words, and is Hosted by <br> <b>IBM Watson Machine Learning</b> and <b>IBM Cloud</b></span></div>  
             <div class = "footer">
                 <div>
@@ -206,7 +219,7 @@ elif navbar == "About":
     with st.sidebar:
         st.markdown("""
             <p style = "font-size:1.2rem; margin-bottom:2rem; " >This Model is Based Upon the LipNet paper which contains of implementation of silent speech recognition using only visual data. </p><br> 
-            <p style = "font-size:1.1rem">Various Deep Learning Techniques Such as Convolutional 3D Neural Networks and GRU are used to construct the model. </p>
+            <p style = "font-size:1.1rem">Various Deep Learning Techniques Such as Convolutional 3D Neural Networks and LSTM are used to construct the model. </p>
         """, unsafe_allow_html=True)   
         
 
@@ -219,7 +232,11 @@ styles = """
 
         *{
             font-family:"Source Sans Pro", sans-serif; 
-         }
+        }
+
+        .open-sans{
+            font-family: 'Open Sans', sans-serif; 
+        }
 
         h1{
             display:block; 
@@ -336,7 +353,7 @@ styles = """
         }
 
         h4{
-            font-weight:600; 
+            font-weight:400;   
         }
 
         .bold{
@@ -352,9 +369,12 @@ styles = """
         .container-two .neo{
             padding:1rem; 2rem;  
             border-radius:5px; 
-            box-shadow:2px 2px 5px 2px rgba(0,0,0,0.3),  
+            /*box-shadow:2px 2px 5px 2px rgba(0,0,0,0.3),  
                         -5px -5px 5px 0px rgba(255,255,255,.5), 
-                        -2px -2px 5px 5px rgba(255,255,255,0.5);   
+                        -2px -2px 5px 5px rgba(255,255,255,0.5);   */ 
+            border-radius:1rem;  
+            text-align:right; 
+            width:60%;   
         }
 
         .about-container{

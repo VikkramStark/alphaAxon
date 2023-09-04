@@ -38,6 +38,6 @@ def LipNet():
     
     model.add(Dense(char_to_num.vocabulary_size()+1, kernel_initializer='he_normal', activation='softmax')) 
 
-    model.load_weights("../models/best_model/checkpoint")  
+    model.load_weights("./models/best_model/checkpoint")  
     
     return model 

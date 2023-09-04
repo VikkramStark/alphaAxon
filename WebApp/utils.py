@@ -6,6 +6,11 @@ import dlib
 from typing import List 
 import tensorflow as tf 
 
+from gcs import get_video 
+
+import numpy as np 
+from moviepy.editor import VideoClip 
+
 
 # os.environ["TF_CPP_MIN_LOG_LEVEL"] = 3 
 try:
@@ -57,32 +62,47 @@ video_path = "test_two.mp4"
 
 #     return frames 
 
+height = 46 
+width = 140 
+channels = 3  
+fps = 25 
 
-def load_video(video_path, display = False, output_path = False):   
+def generate_frames_from_bytes(byte_data):
+    # Convert the byte data into a numpy array
+    frame = np.frombuffer(byte_data, dtype=np.uint8)
+    # Reshape the array as per your frame dimensions and format
+    frame = frame.reshape((height, width, channels))
+    return frame 
 
-    cap = cv2.VideoCapture(video_path)  
 
-    face_detector = dlib.get_frontal_face_detector() 
+def load_video(video_bytes, display = False, output_path = False): 
+    video_frames = [] 
+    cap = cv2.VideoCapture(video_bytes)
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            break
+        video_frames.append(frame)  
+    cap.release()  
 
-    CROP_HEIGHT = 46
-    CROP_WIDTH = 140
+    # cap = cv2.VideoCapture(video_path)
 
-    FACE_HEIGHT = 0.5 
+    # generate_frames_from_bytes(video_bytes)
+    # video_clip = VideoClip(lambda t: generate_frames_from_bytes(video_bytes), duration=1.0)
+
+    print(video_frames)  
 
     lip_frames = [] 
+     
+    for frame in video_frames:
+        face_detector = dlib.get_frontal_face_detector() 
 
-    target_width = target_height = None 
+        CROP_HEIGHT = 46
+        CROP_WIDTH = 140
 
-    if output_path: 
-        output_fourcc = cv2.VideoWriter_fourcc(*"MP4V")      
-        output = cv2.VideoWriter(output_path, output_fourcc,cap.get(5), (CROP_HEIGHT, CROP_WIDTH))      
+        FACE_HEIGHT = 0.5 
 
-    while True:
-
-        status, frame = cap.read() 
-        
-        if not status:
-            break
+        target_width = target_height = None 
 
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY) 
         faces = face_detector(gray) 
@@ -115,9 +135,6 @@ def load_video(video_path, display = False, output_path = False):
             except Exception as e:
                 print(e) 
                 pass 
-
-        if output_path:   
-            output.write(cropped_frame)  
 
         if(cv2.waitKey(1) == ord('q')):
             break 
