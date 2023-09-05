@@ -1,15 +1,10 @@
-# import mediapipe as mp 
+#import mediapipe as mp 
 import numpy as np 
 import cv2 
 import os 
 import dlib 
 from typing import List 
 import tensorflow as tf 
-
-from gcs import get_video 
-
-import numpy as np 
-from moviepy.editor import VideoClip 
 
 
 # os.environ["TF_CPP_MIN_LOG_LEVEL"] = 3 
@@ -30,6 +25,8 @@ video_path = "test_two.mp4"
 #     if "FACEMESH_" in keys:
 #         print(keys)  
 
+
+#  Detecting Face Mesh, Disabiling as of now 
 
 # def landmark_facemesh(video_path:str):  
 #     mpFaceMesh = mp.solutions.face_mesh 
@@ -62,47 +59,32 @@ video_path = "test_two.mp4"
 
 #     return frames 
 
-height = 46 
-width = 140 
-channels = 3  
-fps = 25 
 
-def generate_frames_from_bytes(byte_data):
-    # Convert the byte data into a numpy array
-    frame = np.frombuffer(byte_data, dtype=np.uint8)
-    # Reshape the array as per your frame dimensions and format
-    frame = frame.reshape((height, width, channels))
-    return frame 
+def load_video(video_path, display = False, output_path = False):   
 
+    cap = cv2.VideoCapture(video_path)  
 
-def load_video(video_bytes, display = False, output_path = False): 
-    video_frames = [] 
-    cap = cv2.VideoCapture(video_bytes)
-    while True:
-        ret, frame = cap.read()
-        if not ret:
-            break
-        video_frames.append(frame)  
-    cap.release()  
+    face_detector = dlib.get_frontal_face_detector() 
 
-    # cap = cv2.VideoCapture(video_path)
+    CROP_HEIGHT = 46
+    CROP_WIDTH = 140
 
-    # generate_frames_from_bytes(video_bytes)
-    # video_clip = VideoClip(lambda t: generate_frames_from_bytes(video_bytes), duration=1.0)
-
-    print(video_frames)  
+    FACE_HEIGHT = 0.5 
 
     lip_frames = [] 
-     
-    for frame in video_frames:
-        face_detector = dlib.get_frontal_face_detector() 
 
-        CROP_HEIGHT = 46
-        CROP_WIDTH = 140
+    target_width = target_height = None 
 
-        FACE_HEIGHT = 0.5 
+    if output_path: 
+        output_fourcc = cv2.VideoWriter_fourcc(*"MP4V")      
+        output = cv2.VideoWriter(output_path, output_fourcc,cap.get(5), (CROP_HEIGHT, CROP_WIDTH))      
 
-        target_width = target_height = None 
+    while True:
+
+        status, frame = cap.read() 
+        
+        if not status:
+            break
 
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY) 
         faces = face_detector(gray) 
@@ -135,9 +117,14 @@ def load_video(video_bytes, display = False, output_path = False):
             except Exception as e:
                 print(e) 
                 pass 
+            
+            if(cv2.waitKey(1) == ord('q')):
+                break
 
-        if(cv2.waitKey(1) == ord('q')):
-            break 
+        if output_path:   
+            output.write(cropped_frame)  
+
+         
 
     cap.release() 
     cv2.destroyAllWindows()  
@@ -167,15 +154,15 @@ def load_video(video_bytes, display = False, output_path = False):
     return processed[:75] #return only 75 Frames 
 
   
-# def frames_to_video(name, frames, gray = False):  
-#     fps = 25 
-#     out = cv2.VideoWriter(name, cv2.VideoWriter_fourcc(*'mp4v'), fps, (len(frames), len(frames[0])), not gray) 
-#     for i in range(75):
-#         try:
-#             out.write(frames[i]) 
-#         except:
-#             break 
-#     out.release()  
+def frames_to_video(name, frames, gray = False):  
+    fps = 25 
+    out = cv2.VideoWriter(name, cv2.VideoWriter_fourcc(*'mp4v'), fps, (len(frames), len(frames[0])), not gray) 
+    for i in range(75):
+        try:
+            out.write(frames[i]) 
+        except:
+            break 
+    out.release()  
 
 
 

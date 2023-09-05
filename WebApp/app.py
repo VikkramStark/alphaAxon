@@ -20,8 +20,6 @@ from streamlit_option_menu import option_menu
 
 from backend import watson_speech_prediction, speech_prediction  
 
-from gcs import get_logo, list_dataset, get_video   
-
 
 
 st.set_page_config(layout = "wide", initial_sidebar_state="expanded", page_title = "LipNet - alphaAxon", page_icon="./assets/favicon.png")  
@@ -33,10 +31,8 @@ st.session_state["video_path"] = None
 #
 
 with st.sidebar:
-    # st.image("assets/alphaAxon_final.png", use_column_width = True)  
-    logo = imageio.imread(get_logo())  
-    st.image(logo, use_column_width = True)  
-
+    logo_path = os.path.join("assets","alphaAxon.png")  
+    st.image(logo_path, use_column_width = True)  
 
 CDNs = """         
             <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -119,26 +115,24 @@ elif navbar == "LipNet Model":
     st.title("The Ultimate Deep Learning Model to read :lips:")  
     st.title(" ")  
 
-    st.info("Note : Our Model is not so mature, yet we've been constantly working on this to improve its abilities, Thus be kind with it :heart: ", icon="📝") 
+    st.info("Note : Our Model is not so mature, yet we've been constantly working on this to improve its abilities, Thus be kind with it :heart: | \n Watson Machine Learning supports only 20CUH of free computation use the resource wisely", icon="📝") 
 
     st.title(" ") 
 
     gap1,col1, gap2,col2, gap3 = st.columns([1,10,1,10,1])  
-
-    #Listing Dataset with Google cloud storage 
-
-    dataset = list_dataset() 
+    dataset = os.listdir("dataset")
     
+    
+
     video_path = col1.selectbox(label = "Select Video from existing Dataset: ", options = ["Select a Video",*dataset]) 
 
     if(video_path != "Select a Video" and (video_path.endswith(".mp4") or video_path.endswith(".mpg"))): 
-        #clip = moviepy.VideoFileClip("./Dataset/"+video_path)    
-        #clip.write_videofile("./temp/test.mp4")  
-        video = get_video(video_path)  
-        col1.video(video) 
-        print(type(video)) 
-        print(len(video)) 
-        st.session_state["video_path"] = video_path  
+        video_path = os.path.join("dataset",video_path)  
+        clip = moviepy.VideoFileClip(video_path)    
+        temp_location = os.path.join("temp","test.mp4")   
+        clip.write_videofile(temp_location)   
+        col1.video(temp_location)  
+        st.session_state["video_path"] = temp_location  
 
     if(st.session_state.video_path is None):
         col2.markdown("""
@@ -151,21 +145,22 @@ elif navbar == "LipNet Model":
     elif st.session_state.video_path:
 
 
-        frames = load_video(video).numpy()  
+        frames = load_video(st.session_state.video_path).numpy()  
         #st.write(type(frames)) 
         #st.write(frames)     
         col2.markdown("""
-            <h3 style = "font-size:1.7rem; margin-top:2.5rem; margin-bottom:2.5rem; ">This is What the Deep Learning Model Sees! </h3> 
-            <!--<h4 style = "font-weight:500; ">Select which frame to View : </h4> -->  
+            <h3 style = "font-size:1.7rem; margin-top:2.5rem;">This is What the Deep Learning Model Sees! </h3> 
+            <h4 style = "font-weight:500;  margin-bottom:2.5rem; ">(No sound, Only some bare black-and-white pixels ! )</h4> 
         """, unsafe_allow_html = True)   
         #frame_index = col2.slider("",0,75,20)     
         #df_frames =  pd.DataFrame([range(0,75), np.array([frames.reshape(1,75,46,140)]) ], columns = ["idx", "frame"])  
         #img = px.imshow(df_frames, animation_frame = df_frames["idx"])  
         #img = px.imshow(frames[frame_index].reshape(46,140))   
         #col2.plotly_chart(img)     
-
-        imageio.mimsave("./temp/anim.gif",frames, format = "gif" ,fps = 20)    
-        col2.image("./temp/anim.gif", use_column_width=True)    
+        gif_path = os.path.join(".","temp","anim.gif")  
+        imageio.mimsave(gif_path,frames, format = "gif" ,fps = 20)    
+        col2.image(gif_path, use_column_width=True)   
+  
 
         # subcol1, subcol2 =  col2.columns(2)
         
@@ -174,14 +169,18 @@ elif navbar == "LipNet Model":
         #     subcol1.plotly_chart(img, use_container_width = True)      
         #     img = px.imshow(frames[frame_index + 15].reshape(46,140))     
         #     subcol2.plotly_chart(img, use_container_width = True)  
-
-
+        
+        #  def predict_speech(): 
 
         st.markdown("""
             <h2 class = "center-text" >Prediction From the Model</h2>
-        """,unsafe_allow_html=True)
+            """,unsafe_allow_html=True)
+
         with st.spinner("Predicting..."): 
-            prediction, status =  speech_prediction(frames)  #watson_speech_prediction(frames.tolist())  
+            # comment the watson_speech_prediction() and uncomment speech_prediction() in case of CUH error 
+            prediction, status = speech_prediction(frames)  # watson_speech_prediction(frames.tolist()) 
+            st.balloons() 
+
         if status:
             st.success("Speech SuccessFully Predicted :sparkles: ") 
             st.markdown(f"""
@@ -189,8 +188,11 @@ elif navbar == "LipNet Model":
             """,unsafe_allow_html = True) 
         else:
             st.error(prediction+" Please retry after sometime") 
-        st.warning("The Model isn't always 100\% Accurate, that's what makes it more humanly :wink: :smiling_face_with_smiling_eyes_and_hand_covering_mouth: ")    
- 
+            st.write("Refer app.py line 175 for fixing this error...")   
+        st.warning("The Model isn't always 100\% Accurate, that's what makes it more humanly :wink: :smiling_face_with_smiling_eyes_and_hand_covering_mouth: ")   
+
+        #predict_btn = col2.button("Predict Speech", on_click = predict_speech, type = "primary")    
+    
 
 
 elif navbar == "About":
